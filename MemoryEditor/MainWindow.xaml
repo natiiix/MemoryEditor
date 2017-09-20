@@ -3,10 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:MemoryEditor"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Memory Editor" Height="600" Width="800" Background="#FF404048" Loaded="Window_Loaded">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" MinWidth="160" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+
+        <ListBox Grid.Column="0" x:Name="ListBoxProcessList" Margin="10" SelectionChanged="ListBoxProcessList_SelectionChanged" />
+        <Button x:Name="ButtonRefreshProcessList" Content="Refresh" Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Padding="12, 4" Click="ButtonRefreshProcessList_Click" />
     </Grid>
 </Window>
