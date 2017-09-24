@@ -4,14 +4,154 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Memory Editor" Height="600" Width="800" Background="#FF404048" Loaded="Window_Loaded">
+        Title="Memory Editor" Width="800" Height="480" MinWidth="480" MinHeight="320" Background="#FF404048" Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="#FFF0F0F0" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Text" Value="" />
+            <Setter Property="TextWrapping" Value="NoWrap" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="5, 0" />
+        </Style>
+
+        <Style TargetType="ColumnDefinition" x:Key="ButtonColumnStyle">
+            <Setter Property="MinWidth" Value="48" />
+            <Setter Property="MaxWidth" Value="96" />
+        </Style>
+
+        <Style TargetType="ColumnDefinition" x:Key="SpaceColumnStyle">
+            <Setter Property="MinWidth" Value="5" />
+            <Setter Property="MaxWidth" Value="10" />
+        </Style>
+
+        <Style TargetType="RowDefinition" x:Key="SpaceRowStyle">
+            <Setter Property="MinHeight" Value="5" />
+            <Setter Property="MaxHeight" Value="10" />
+        </Style>
+
+        <Style TargetType="RowDefinition" x:Key="LabelRowStyle">
+            <Setter Property="Height" Value="26" />
+        </Style>
+    </Window.Resources>
+
+    <!-- main grid -->
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" MinWidth="160" />
+            <ColumnDefinition Width="1*" />
             <ColumnDefinition Width="2*" />
         </Grid.ColumnDefinitions>
 
-        <ListBox Grid.Column="0" x:Name="ListBoxProcessList" Margin="10" SelectionChanged="ListBoxProcessList_SelectionChanged" />
-        <Button x:Name="ButtonRefreshProcessList" Content="Refresh" Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Padding="12, 4" Click="ButtonRefreshProcessList_Click" />
+        <!-- process selection column -->
+        <Grid Grid.Column="0" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10*" />
+                <RowDefinition Style="{StaticResource SpaceRowStyle}" />
+                <RowDefinition Height="1*" MinHeight="24" MaxHeight="36" />
+                <RowDefinition Style="{StaticResource LabelRowStyle}" />
+                <RowDefinition Height="1*" MinHeight="24" MaxHeight="36" />
+            </Grid.RowDefinitions>
+
+            <!-- list of running processes -->
+            <ListView Grid.Column="0" x:Name="ListViewProcessList" SelectionMode="Single" SelectionChanged="ListViewProcessList_SelectionChanged">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="PID" Width="48" DisplayMemberBinding="{Binding Id}" />
+                        <GridViewColumn Header="Name" Width="120" DisplayMemberBinding="{Binding ProcessName}" />
+                        <GridViewColumn Header="Window Title" Width="240" DisplayMemberBinding="{Binding MainWindowTitle}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
+            <Button Grid.Row="2" x:Name="ButtonRefreshProcessList" Content="Refresh" Click="ButtonRefreshProcessList_Click" />
+            <Label Grid.Row="3" Content="Process Filter" />
+            <TextBox Grid.Row="4" x:Name="TextBoxProcessFilter" TextChanged="TextBoxProcessFilter_TextChanged" />
+        </Grid>
+
+        <!-- process control column -->
+        <Grid Grid.Column="1" Margin="10" x:Name="GridProcessControl">
+            <Grid.RowDefinitions>
+                <RowDefinition MinHeight="24" MaxHeight="48" />
+                <RowDefinition Style="{StaticResource SpaceRowStyle}" />
+                <RowDefinition Height="20*" />
+                <RowDefinition Style="{StaticResource LabelRowStyle}" />
+            </Grid.RowDefinitions>
+
+            <!-- scan row -->
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="42" />
+                    <ColumnDefinition Width="20*" />
+                    <ColumnDefinition Style="{StaticResource SpaceColumnStyle}" />
+                    <ColumnDefinition Width="4*" MaxWidth="96" />
+                    <ColumnDefinition Style="{StaticResource SpaceColumnStyle}" />
+                    <ColumnDefinition Width="4*" MaxWidth="96" />
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0" Content="Value:" />
+                <TextBox Grid.Column="1" x:Name="TextBoxScanValue" Text="0" />
+                <Button Grid.Column="3" x:Name="ButtonScan" Content="Scan" Click="ButtonScan_Click" />
+                <Button Grid.Column="5" x:Name="ButtonScanFilter" Content="Filter" Click="ButtonScanFilter_Click" />
+            </Grid>
+
+            <!-- row with the addresses and control elements -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="10*" />
+                    <ColumnDefinition Style="{StaticResource SpaceColumnStyle}" />
+                    <ColumnDefinition Style="{StaticResource ButtonColumnStyle}" />
+                </Grid.ColumnDefinitions>
+
+                <!-- list of addresses with matching values -->
+                <ListView Grid.Column="0" x:Name="ListViewAddresses" SizeChanged="ListViewAddresses_SizeChanged" ScrollViewer.VerticalScrollBarVisibility="Visible" SelectionMode="Single" SelectionChanged="ListViewAddresses_SelectionChanged">
+                    <ListView.Resources>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="FontFamily" Value="Courier New" />
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasChanged}" Value="True">
+                                    <Setter Property="Background" Value="Pink" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.Resources>
+
+                    <ListView.View>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style TargetType="GridViewColumnHeader">
+                                    <Setter Property="IsHitTestVisible" Value="False" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+
+                            <GridViewColumn Header="Address" DisplayMemberBinding="{Binding AddressString}" />
+                            <GridViewColumn Header="Value" DisplayMemberBinding="{Binding Value}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+                <!-- value control buttons -->
+                <Grid Grid.Column="2" x:Name="GridValueControl">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="4*" />
+                        <RowDefinition MaxHeight="72" />
+                        <RowDefinition Style="{StaticResource SpaceRowStyle}" />
+                        <RowDefinition MaxHeight="72" />
+                        <RowDefinition Height="4*" />
+                    </Grid.RowDefinitions>
+
+                    <Button Grid.Row="1" x:Name="ButtonValueEdit" Content="Edit" Click="ButtonValueEdit_Click" />
+                    <Button Grid.Row="3" x:Name="ButtonValueCopy" Content="Copy" Click="ButtonValueCopy_Click" />
+                </Grid>
+            </Grid>
+
+            <Label Grid.Row="4" x:Name="LabelValueCount" Content="[Label Value Count]" HorizontalContentAlignment="Left" />
+        </Grid>
     </Grid>
 </Window>

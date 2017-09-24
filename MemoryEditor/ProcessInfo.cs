@@ -1,26 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace MemoryEditor
 {
-    public class ProcessInfo
+    public partial class ProcessInfo
     {
-        public readonly int Id;
-        public readonly string ProcessName;
+        public int Id { get; }
+        public string ProcessName { get; }
+        public string MainWindowTitle { get; }
 
         public ProcessInfo(Process proc)
         {
             Id = proc.Id;
             ProcessName = proc.ProcessName;
+            MainWindowTitle = proc.MainWindowTitle;
         }
 
-        public override string ToString()
+        public bool FitsFilter(string filter)
         {
-            return string.Format("[{0}] {1}", Id, ProcessName);
+            return ProcessName.ContainsCaseInsensitive(filter) || MainWindowTitle.ContainsCaseInsensitive(filter);
         }
     }
 }
