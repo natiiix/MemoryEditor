@@ -36,7 +36,7 @@ namespace MemoryEditor
 
         private void TimerRefreshValues_Tick(object sender, EventArgs e)
         {
-            RefreshValues(true);
+            RefreshValues();
             UpdateValueCount();
         }
 
@@ -123,8 +123,7 @@ namespace MemoryEditor
             if (int.TryParse(TextBoxScanValue.Text, out int filterValue))
             {
                 // Get the current values
-                // The property changed event must not be raised when filtering out values
-                RefreshValues(true);
+                RefreshValues();
 
                 // Remove values that don't fit the filter
                 AddrVals.RemoveAll(x => !x.Filter(filterValue));
@@ -139,9 +138,9 @@ namespace MemoryEditor
             }
         }
 
-        private void RefreshValues(bool raisePropertyChanged)
+        private void RefreshValues()
         {
-            AddrVals.ForEach(x => x.RefreshValue(raisePropertyChanged));
+            AddrVals.ForEach(x => x.RefreshValue());
         }
 
         private void UpdateListViewAddressesItems()

@@ -29,7 +29,7 @@ namespace MemoryEditor
             return ProcessMemory.Read(ProcessId, Address);
         }
 
-        public void RefreshValue(bool raisePropertyChanged)
+        public void RefreshValue()
         {
             int oldValue = Value;
             Value = GetValue();
@@ -43,18 +43,17 @@ namespace MemoryEditor
                     HasChanged = true;
 
                     // Notify the list view so that it knows to change the background color of the row
-                    if (raisePropertyChanged && PropertyChanged != null)
-                    {
-                        PropertyChanged(this, new PropertyChangedEventArgs("HasChanged"));
-                    }
+                    RaisePropertyChanged("HasChanged");
                 }
 
                 // Tell the list view that it needs to update the value
-                if (raisePropertyChanged && PropertyChanged != null)
-                {
-                    PropertyChanged(this, new PropertyChangedEventArgs("Value"));
-                }
+                RaisePropertyChanged("Value");
             }
+        }
+
+        private void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public bool Filter(int filterValue)
